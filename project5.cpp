@@ -1,62 +1,78 @@
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <ctime>
-#include <iomanip>
+#include <limits>
+#include <string>
 
 using namespace std;
 
-// Функция для обработки матрицы
-int processMatrix(int matrix[8][8], int threshold) {
-    int sum = 0;
+const int SIZE = 8;
 
-    // Проходим по диагональным элементам (главная диагональ)
-    for (int i = 0; i < 8; i++) {
-        // Проверяем, больше ли элемент заданного числа
+void processMatrix(int matrix[SIZE][SIZE], int threshold, int& sum) {
+    sum = 0;
+    for (int i = 0; i < SIZE; i++) {
         if (matrix[i][i] > threshold) {
             sum += matrix[i][i];
         }
     }
-
-    return sum;
 }
 
 int main() {
-    // Устанавливаем русскую локаль
-    setlocale(LC_ALL, "Rus");
-
-    // Инициализируем генератор случайных чисел
-    srand(time(NULL));
-
-    const int SIZE = 8;
-    const int MAX_VALUE = 150;
+    srand(time(0));
     int matrix[SIZE][SIZE];
     int threshold;
+    int sum;
+    string input;
 
-    // Заполняем матрицу случайными числами в диапазоне [0; 150]
-    cout << "Исходная матрица" << endl;
+    // Fill matrix with random values in range [0, 150]
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
-            matrix[i][j] = rand() % (MAX_VALUE + 1); // [0; 150]
+            matrix[i][j] = rand() % 151;
+        }
+    }
+
+    cout << "Original Matrix:" << endl;
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
             cout << setw(4) << matrix[i][j];
         }
         cout << endl;
     }
 
-    // Запрашиваем у пользователя пороговое значение
-    cout << "\nзаданное число: ";
-    cin >> threshold;
+    // Robust input validation
+    while (true) {
+        cout << "\nEnter threshold number: ";
+        getline(cin, input);
 
-    // Вызываем функцию обработки матрицы
-    int diagonalSum = processMatrix(matrix, threshold);
+        try {
+            threshold = stoi(input);
+            break; // Exit loop if conversion successful
+        }
+        catch (const invalid_argument& e) {
+            cout << "Error: Invalid input. Please enter a valid integer." << endl;
+        }
+        catch (const out_of_range& e) {
+            cout << "Error: Number is out of range. Please enter a smaller number." << endl;
+        }
+    }
 
-    // Выводим результат
-    cout << "\nРезультаты:" << endl;
-    cout << "Сумма диагональных элементов, больших " << threshold << ": " << diagonalSum << endl;
+    processMatrix(matrix, threshold, sum);
 
-    // Дополнительно выводим диагональные элементы для проверки
-    cout << "\nДиагональные элементы матрицы:" << endl;
+    cout << "\nResults:" << endl;
+    cout << "Sum of diagonal elements greater than " << threshold << ": " << sum << endl;
+
+    // Show which diagonal elements were included
+    cout << "Diagonal elements included in sum: ";
+    bool found = false;
     for (int i = 0; i < SIZE; i++) {
-        cout << matrix[i][i] << " ";
+        if (matrix[i][i] > threshold) {
+            cout << "A[" << i << "][" << i << "]=" << matrix[i][i] << " ";
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "none";
     }
     cout << endl;
 
