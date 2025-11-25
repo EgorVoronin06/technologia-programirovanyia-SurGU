@@ -1,0 +1,109 @@
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <locale>
+#include <windows.h>
+
+using namespace std;
+
+// Проверка, является ли символ буквой (латиница или кириллица Windows-1251)
+bool isLetter(unsigned char c) {
+    if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
+        return true;
+    if ((c >= 192 && c <= 255) || c == 168 || c == 184)
+        return true;
+    return false;
+}
+
+// Проверка, содержит ли строка только буквы и дефисы
+bool containsOnlyLettersAndHyphens(const char* str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        unsigned char c = (unsigned char)str[i];
+        if (!isLetter(c) && c != '-') {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Подсчет букв без учета дефисов
+int countLetters(const char* str) {
+    int count = 0;
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (isLetter((unsigned char)str[i])) {
+            count++;
+        }
+    }
+    return count;
+}
+
+// Проверка на пробелы в строке
+bool containsSpace(const char* str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (str[i] == ' ') {
+            return true;
+        }
+    }
+    return false;
+}
+
+int main() {
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    setlocale(LC_ALL, "Russian");
+
+    const int MAX_LENGTH = 100;
+    char word[MAX_LENGTH];
+
+    cout << "введите слово: ";
+    cin >> word;
+
+    if (containsSpace(word)) {
+        cout << "ОШИБКА: Ввод слова с пробелом недопустим" << endl;
+        cout << "ERROR2: Пробелы в слове запрещены" << endl;
+        return 1;
+    }
+
+    if (!containsOnlyLettersAndHyphens(word)) {
+        cout << "ОШИБКА: Слово должно содержать только буквы и дефисы" << endl;
+        cout << "ERROR2: Недопустимые символы в слове" << endl;
+        return 1;
+    }
+
+    int letterCount = countLetters(word);
+
+    cout << "Размер: " << letterCount << " символов" << endl;
+    if (letterCount % 3 == 0) {
+        cout << "кратно(" << letterCount << ")" << endl;
+    }
+    else {
+        cout << "не кратно(" << letterCount << ")" << endl;
+    }
+
+    cout << "\nДополнительная информация:" << endl;
+    cout << "введенное слово: " << word << endl;
+
+    bool hasLatin = false;
+    bool hasCyrillic = false;
+    for (int i = 0; word[i] != '\0'; i++) {
+        unsigned char c = (unsigned char)word[i];
+        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+            hasLatin = true;
+        }
+        else if (isLetter(c)) {
+            hasCyrillic = true;
+        }
+    }
+
+    if (hasLatin && hasCyrillic) {
+        cout << "слово содержит латинские и русские буквы" << endl;
+    }
+    else if (hasLatin) {
+        cout << "только латинские буквы" << endl;
+    }
+    else {
+        cout << "только русские буквы" << endl;
+    }
+
+    return 0;
+}
